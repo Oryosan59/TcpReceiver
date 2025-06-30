@@ -1,0 +1,618 @@
+﻿<Window x:Class="TcpReceiver.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Navigator設定同期 - WPF" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen" MinWidth="900" MinHeight="600">
+
+    <Window.Resources>
+        <!-- ボタンスタイル -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#5E81AC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderBrush" Value="#4C566A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#81A1C1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#4C566A"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Border" Property="Background" Value="#4C566A"/>
+                                <Setter Property="Foreground" Value="#88C0D0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- リセットボタンスタイル -->
+        <Style x:Key="ResetButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#BF616A"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#D08770"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#A0516A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 保存ボタンスタイル -->
+        <Style x:Key="SaveButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#A3BE8C"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#B8CC9C"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#93AE7C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- セクションタイトルスタイル -->
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#ECEFF4"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <!-- 設定項目ラベルスタイル -->
+        <Style x:Key="ConfigLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#D8DEE9"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Width" Value="200"/>
+        </Style>
+
+        <!-- 設定値テキストボックススタイル -->
+        <Style x:Key="ConfigTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#434C5E"/>
+            <Setter Property="Foreground" Value="#ECEFF4"/>
+            <Setter Property="BorderBrush" Value="#4C566A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontFamily" Value="Consolas, Monaco, monospace"/>
+            <Setter Property="Width" Value="150"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Name="Border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#88C0D0"/>
+                                <Setter TargetName="Border" Property="Background" Value="#3B4252"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#5E81AC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 設定項目スタイル -->
+        <Style x:Key="ConfigItem" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Margin" Value="0,5,0,5"/>
+        </Style>
+
+        <!-- グループボックススタイル -->
+        <Style x:Key="ConfigGroupBox" TargetType="GroupBox">
+            <Setter Property="Foreground" Value="#ECEFF4"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="BorderBrush" Value="#4C566A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Background="#2E3440" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="5,5,0,0" 
+                                    Padding="10,5">
+                                <ContentPresenter ContentSource="Header" 
+                                                  TextBlock.Foreground="{TemplateBinding Foreground}"/>
+                            </Border>
+                            <Border Grid.Row="1" Background="#3B4252" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="1,0,1,1" 
+                                    CornerRadius="0,0,5,5" 
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 説明テキストスタイル -->
+        <Style x:Key="DescriptionText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#81A1C1"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ステータスバー -->
+        <Border Grid.Row="0" Background="#2E3440" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="接続状態: " Foreground="White" FontWeight="Bold"/>
+                    <TextBlock x:Name="StatusText" Text="待機中" Foreground="#88C0D0" FontWeight="Bold"/>
+                    <Separator Margin="20,0" Background="#4C566A"/>
+                    <TextBlock Text="最終更新: " Foreground="White" FontWeight="Bold"/>
+                    <TextBlock x:Name="LastUpdateText" Text="---" Foreground="#A3BE8C" FontWeight="Bold"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" x:Name="ReloadButton" Content="🔄 再読み込み" 
+                        Style="{StaticResource ModernButton}"
+                        Width="120" Height="40" Margin="0"
+                        Click="ReloadButton_Click"
+                        ToolTip="設定ファイルを再読み込みします"/>
+            </Grid>
+        </Border>
+
+        <!-- 統計情報バー -->
+        <Border Grid.Row="1" Background="#3B4252" Padding="15,10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="📊 " Foreground="#EBCB8B" FontSize="14"/>
+                <TextBlock x:Name="StatsText" Text="統計情報を読み込み中..." 
+                           Foreground="#D8DEE9" FontWeight="Medium"/>
+                <Separator Margin="20,0" Background="#4C566A"/>
+                <TextBlock Text="💡 ヒント: 設定値は直接編集できます。変更後は必ず送信ボタンを押してください。" 
+                           Foreground="#81A1C1" FontStyle="Italic"/>
+            </StackPanel>
+        </Border>
+
+        <!-- メインコンテンツ -->
+        <TabControl Grid.Row="2" Background="#3B4252" BorderBrush="#4C566A">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Background" Value="#434C5E"/>
+                    <Setter Property="Foreground" Value="#ECEFF4"/>
+                    <Setter Property="Padding" Value="20,10"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="FontSize" Value="13"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border" Background="{TemplateBinding Background}" 
+                                        BorderBrush="#4C566A" BorderThickness="1,1,1,0" 
+                                        CornerRadius="8,8,0,0" Margin="2,0">
+                                    <ContentPresenter x:Name="ContentSite" 
+                                                      VerticalAlignment="Center" 
+                                                      HorizontalAlignment="Center"
+                                                      ContentSource="Header" 
+                                                      Margin="{TemplateBinding Padding}"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#5E81AC"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#4C566A"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- PWM設定タブ -->
+            <TabItem Header="⚡ PWM設定">
+                <ScrollViewer Background="#3B4252" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="25">
+                        <TextBlock Text="PWM制御設定" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="スラスターのPWM信号制御に関する基本パラメータを設定します。値を直接編集できます。" 
+                                   Style="{StaticResource DescriptionText}"/>
+
+                        <!-- PWM設定項目 -->
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="PWM最小値" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="PwmMinTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="PWM信号の最小値（通常1100μs）"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="中立PWM値" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="PwmNeutralTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="PWM信号の中立値（通常1500μs）"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="通常最大PWM値" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="PwmNormalMaxTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="通常動作時のPWM最大値"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="ブースト最大PWM値" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="PwmBoostMaxTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="ブースト時のPWM最大値（通常1900μs）"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="PWM周波数 (Hz)" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="PwmFrequencyTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="PWM信号の周波数（通常50Hz）"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- スラスター設定タブ -->
+            <TabItem Header="🚁 スラスター設定">
+                <ScrollViewer Background="#3B4252" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="25">
+                        <TextBlock Text="スラスター制御設定" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="スラスターの動作制御、スムージング、姿勢制御に関するパラメータを設定します。値を直接編集できます。" 
+                                   Style="{StaticResource DescriptionText}"/>
+
+                        <!-- スラスター制御設定項目 -->
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="水平スムージング係数" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="SmoothingHorizontalTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="水平方向の動きのスムージング係数（0.0-1.0）"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="垂直スムージング係数" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="SmoothingVerticalTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="垂直方向の動きのスムージング係数（0.0-1.0）"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="ロール比例ゲイン" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="KpRollTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="ロール制御の比例ゲイン"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="ヨー比例ゲイン" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="KpYawTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="ヨー制御の比例ゲイン"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="ヨー角速度しきい値 (deg/sec)" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="YawThresholdTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="ヨー制御が有効になる角速度のしきい値"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource ConfigItem}">
+                            <TextBlock Text="ヨー制御ゲイン" Style="{StaticResource ConfigLabel}"/>
+                            <TextBox x:Name="YawGainTextBox" Style="{StaticResource ConfigTextBox}" 
+                                     ToolTip="ヨー制御の全体ゲイン"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ネットワーク設定タブ -->
+            <TabItem Header="🌐 ネットワーク設定">
+                <ScrollViewer Background="#3B4252" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="25">
+                        <TextBlock Text="ネットワーク通信設定" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="TCP通信、ジョイスティック、LED制御、アプリケーション動作に関する設定です。値を直接編集できます。" 
+                                   Style="{StaticResource DescriptionText}"/>
+
+                        <!-- ジョイスティック設定 -->
+                        <GroupBox Header="ジョイスティック設定" Style="{StaticResource ConfigGroupBox}">
+                            <StackPanel>
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="デッドゾーン" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="JoystickDeadzoneTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="ジョイスティックのデッドゾーン値"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- LED設定 -->
+                        <GroupBox Header="LED制御設定" Style="{StaticResource ConfigGroupBox}">
+                            <StackPanel>
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="LEDチャンネル番号" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="LedChannelTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="LEDを制御するチャンネル番号"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="LED点灯PWM値" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="LedOnValueTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="LED点灯時のPWM値"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="LED消灯PWM値" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="LedOffValueTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="LED消灯時のPWM値"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- アプリケーション設定 -->
+                        <GroupBox Header="アプリケーション設定" Style="{StaticResource ConfigGroupBox}">
+                            <StackPanel>
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="センサー送信間隔" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="SensorSendIntervalTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="センサーデータの送信間隔"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="メインループ待機時間 (μs)" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="LoopDelayTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="メインループの待機時間（マイクロ秒）"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- カメラ設定タブ -->
+            <TabItem Header="📷 カメラ設定">
+                <ScrollViewer Background="#3B4252" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="25">
+                        <TextBlock Text="GStreamerカメラ設定" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="カメラデバイスの解像度、フレームレート、エンコード設定を行います。値を直接編集できます。" 
+                                   Style="{StaticResource DescriptionText}"/>
+
+                        <!-- カメラ1設定 -->
+                        <GroupBox Header="カメラ1設定" Style="{StaticResource ConfigGroupBox}">
+                            <StackPanel>
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="デバイスパス" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera1DeviceTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             Width="200" ToolTip="カメラデバイスのパス（例: /dev/video2）"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="ストリームポート" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera1PortTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="ストリーミング用のポート番号"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="映像幅" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera1WidthTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="映像の横幅（ピクセル）"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="映像高さ" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera1HeightTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="映像の高さ（ピクセル）"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="フレームレート分子" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera1FramerateNumTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="フレームレートの分子（30/1 = 30fps）"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- カメラ2設定 -->
+                        <GroupBox Header="カメラ2設定" Style="{StaticResource ConfigGroupBox}">
+                            <StackPanel>
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="デバイスパス" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera2DeviceTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             Width="200" ToolTip="カメラデバイスのパス（例: /dev/video4）"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="ストリームポート" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera2PortTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="ストリーミング用のポート番号"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="映像幅" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera2WidthTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="映像の横幅（ピクセル）"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="映像高さ" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera2HeightTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="映像の高さ（ピクセル）"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="フレームレート分子" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera2FramerateNumTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="フレームレートの分子（30/1 = 30fps）"/>
+                                </StackPanel>
+
+                                <StackPanel Style="{StaticResource ConfigItem}">
+                                    <TextBlock Text="x264ビットレート (kbps)" Style="{StaticResource ConfigLabel}"/>
+                                    <TextBox x:Name="Camera2X264BitrateTextBox" Style="{StaticResource ConfigTextBox}" 
+                                             ToolTip="x264エンコードのビットレート"/>
+                                </StackPanel>
+                            </StackPanel>
+                            </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+                        <!-- その他設定タブ -->
+            <TabItem Header="⚙️ その他">
+                <ScrollViewer Background="#3B4252" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="25" x:Name="OtherPanel">
+                        <TextBlock Text="その他の設定" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="設定同期、システム連携など、その他の機能に関する設定です。値を直接編集できます。" 
+                                   Style="{StaticResource DescriptionText}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ログ/デバッグタブ -->
+            <TabItem Header="📋 ログ">
+                <Grid Background="#3B4252">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#2E3440" Padding="15,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="通信ログ" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            <Button Content="🗑️ クリア" Style="{StaticResource ResetButton}" 
+                                    Width="80" Height="25" Margin="20,0,0,0"
+                                    x:Name="ClearLogButton" Click="ClearLogButton_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" Margin="15" VerticalScrollBarVisibility="Auto">
+                        <TextBox x:Name="LogTextBox" 
+                                 Background="#2E3440" 
+                                 Foreground="#D8DEE9"
+                                 BorderThickness="1"
+                                 BorderBrush="#4C566A"
+                                 Padding="10"
+                                 FontFamily="Consolas, Monaco, monospace"
+                                 FontSize="12"
+                                 IsReadOnly="True"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 Text="アプリケーション開始&#x0a;TCP受信を待機中..."/>
+                    </ScrollViewer>
+
+                    <Border Grid.Row="2" Background="#2E3440" Padding="15,8">
+                        <TextBlock x:Name="LogStatsText" 
+                                   Text="ログエントリ: 0件" 
+                                   Foreground="#81A1C1" 
+                                   FontSize="11"/>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 制御ボタン -->
+        <Border Grid.Row="3" Background="#2E3440" Padding="20,15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 左側：メインボタン -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button x:Name="SendButton" Content="📤 設定をC++アプリに送信" 
+                            Style="{StaticResource ModernButton}"
+                            Width="200" Height="40"
+                            Click="SendButton_Click"
+                            ToolTip="現在の設定をC++アプリケーションに送信します"/>
+
+                    <Button x:Name="SaveButton" Content="💾 ファイルに保存" 
+                            Style="{StaticResource SaveButton}"
+                            Width="150" Height="40"
+                            Click="SaveButton_Click"
+                            ToolTip="設定をローカルファイルに保存します"/>
+
+                    <Button x:Name="ResetButton" Content="🔄 設定をリセット" 
+                            Style="{StaticResource ResetButton}"
+                            Width="150" Height="40"
+                            Click="ResetButton_Click"
+                            ToolTip="すべての設定をクリアします"/>
+                </StackPanel>
+
+                <!-- 右側：接続情報 -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🔗 " Foreground="#88C0D0" FontSize="14" VerticalAlignment="Center"/>
+                    <TextBlock Text="受信ポート: 12347" Foreground="#D8DEE9" 
+                               FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                    <TextBlock Text=" | " Foreground="#4C566A" Margin="10,0"/>
+                    <TextBlock Text="送信先: 192.168.4.100:12348" Foreground="#D8DEE9" 
+                               FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
