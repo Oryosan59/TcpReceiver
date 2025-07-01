@@ -541,9 +541,9 @@
 
                     <Border Grid.Row="0" Background="#2E3440" Padding="15,10">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="通信ログ" Style="{StaticResource SectionTitle}" Margin="0"/>
+                            <TextBlock Text="通信ログ" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             <Button Content="🗑️ クリア" Style="{StaticResource ResetButton}" 
-                                    Width="80" Height="25" Margin="20,0,0,0"
+                                    Width="100" Height="35" Margin="20,0,0,0"
                                     x:Name="ClearLogButton" Click="ClearLogButton_Click"/>
                         </StackPanel>
                     </Border>
